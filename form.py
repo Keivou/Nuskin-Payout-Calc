@@ -9,49 +9,34 @@ class Form(QDialog):
         super(Form, self).__init__(parent)
         self.setWindowTitle("Nu Skin Payout Calculator")
 
-        # Add all widgets
-        self.all_widgets()
+        # Overall vertical layout
+        vertical_layout = QVBoxLayout(self)
 
-        # Create layout and add widgets
-        layout = QVBoxLayout(self)
-        layout = self.design_layout(all_widgets)
+        # Horizontal layouts to stack
+        marketbox = self.market()
+        productbox = self.product()
+        dcsvbox = self.dc_sv_payout()
+        pracsvbox = self.prac_sv_payout()
+        gsvbox = self.gsv_payout()
+        ltsvbox = self.ltsv_payout()
 
-        # Add button signal to greetings slot
-        self.calculate_button.clicked.connect(self.greetings)
+        # Stacking the layouts
+        vertical_layout.addLayout(marketbox)
+        vertical_layout.addLayout(productbox)
+        vertical_layout.addLayout(dcsvbox)
+        vertical_layout.addLayout(pracsvbox)
+        vertical_layout.addLayout(gsvbox)
+        vertical_layout.addLayout(ltsvbox)
 
-    
-    def all_widgets(self):
-        # Market widgets
-        self.market_label = QLabel("Mercado:")
-        self.market_dropdown = QLineEdit("")
+        # Adding button
+        self.calc_button = self.calculate_total_payout()
+        vertical_layout.addWidget(self.calc_button)
 
-        # Product widgets
-        self.product_label = QLabel("Producto:")
-        self.product_dropdown = QLineEdit("")
+        # Setting the layout for the window
+        self.setLayout(vertical_layout)
 
-        # Quantity widgets
-        self.quantity_label = QLabel("Cantidad:")
-        self.quantity_value = QLineEdit("")
-
-        # DC-SV widgets
-        self.dcsv_label = QLabel("DC-SV:")
-        self.dcsv_value = QLineEdit("")
-
-        # PRAC-SV widgets
-        self.pracsv_label = QLabel("PRAC-SV:")
-        self.pracsv_value = QLineEdit("")
-
-        # GSV widgets
-        self.gsv_label = QLabel("GSV/VVG:")
-        self.gsv_value = QLineEdit("")
-
-        # LTSV widgets
-        self.ltsv_label = QLabel("LTSV:")
-        self.ltsv_value = QLineEdit("")
-
-        # Calculate button widget
-        self.calculate_button = QPushButton("Calc Payout")
-
+        # Button doesn't exist yet
+        self.calc_button.clicked.connect(self.calculate_total_payout)
 
     def market(self):
         hbox = QHBoxLayout()
@@ -61,12 +46,12 @@ class Form(QDialog):
         self.market_location = QLineEdit("")
 
         # Add widgets to horizontal box
-        hbox.addWidget(market_label)
-        hbox.addWidget(market_location)
+        hbox.addWidget(self.market_label)
+        hbox.addWidget(self.market_location)
         
         return hbox
 
-    def product():
+    def product(self):
         hbox = QHBoxLayout()
 
         # Product widgets
@@ -78,60 +63,72 @@ class Form(QDialog):
         self.quantity_value = QLineEdit("")
 
         # Add widgets to horizontal box
-        hbox.addWidget(product_label)
-        hbox.addWidget(product_name)
-        hbox.addWidget(quantity_label)
-        hbox.addWidget(quantity_value)
+        hbox.addWidget(self.product_label)
+        hbox.addWidget(self.product_name)
+        hbox.addWidget(self.quantity_label)
+        hbox.addWidget(self.quantity_value)
 
         return hbox
 
-    def dc_sv_payout():
+    def dc_sv_payout(self):
         hbox = QHBoxLayout()
 
         # DC-SV widgets
         self.dcsv_label = QLabel("DC-SV:")
         self.dcsv_value = QLineEdit("")
 
-        hbox.addWidget(dcsv_label)
-        hbox.addWidget(dcsv_value)
+        hbox.addWidget(self.dcsv_label)
+        hbox.addWidget(self.dcsv_value)
 
         return hbox
 
-    def prac_sv_payout():
+    def prac_sv_payout(self):
         hbox = QHBoxLayout()
 
         # PRAC-SV widgets
         self.pracsv_label = QLabel("PRAC-SV:")
         self.pracsv_value = QLineEdit("")
 
-        hbox.addWidget(pracsv_label)
-        hbox.addWidget(pracsv_value)
+        hbox.addWidget(self.pracsv_label)
+        hbox.addWidget(self.pracsv_value)
 
         return hbox
 
-    def gsv_payout():
+    def gsv_payout(self):
         hbox = QHBoxLayout()
 
         # GSV widgets
         self.gsv_label = QLabel("GSV/VVG:")
         self.gsv_value = QLineEdit("")
 
-        hbox.addWidget(gsv_label)
-        hbox.addWidget(gsv_value)
+        hbox.addWidget(self.gsv_label)
+        hbox.addWidget(self.gsv_value)
 
         return hbox
 
-    def ltsv_payout():
+    def ltsv_payout(self):
         hbox = QHBoxLayout()
 
         # LTSV widgets
         self.ltsv_label = QLabel("LTSV:")
         self.ltsv_value = QLineEdit("")
 
-        hbox.addWidget(ltsv_label)
-        hbox.addWidget(ltsv_value)
+        hbox.addWidget(self.ltsv_label)
+        hbox.addWidget(self.ltsv_value)
 
         return hbox
 
-    def calculate_total_payout():
-        pass
+    def calculate_total_payout(self):
+        button = QPushButton("Calc Payout")
+        try:
+            dcsv = float(self.dcsv_value.text())
+            pracsv = float(self.pracsv_value.text())
+            gsv = float(self.gsv_value.text())
+            ltsv = float(self.ltsv_value.text())
+        except ValueError:
+            # This is only triggered when the app starts
+            return button
+
+        payout = dcsv + pracsv + gsv + ltsv
+        print(payout)
+        return button
