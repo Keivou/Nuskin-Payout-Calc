@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QApplication, QDialog, QPushButton,
 QLabel, QLineEdit, QVBoxLayout)
 from PySide6.QtCore import Slot
 
-from form import Form
+from ./form/form import Form
 
 
 def main():
