@@ -6,19 +6,35 @@ from PySide6.QtCore import Slot
 from widgets.main_widget import MainWidget
 from windows.main_window import MainWindow
 
+from init.init_tables import *
 
-def main():
+import sqlite3
+
+def main(connection):
+    # Initialize product table if products.db doesn't exist
+    init_product_table(connection)
+
     # QtApp
     app = QApplication(sys.argv)
 
+    # Create MainWidget
     widget = MainWidget()
 
+    # Create MainWindow
     window = MainWindow(widget)
-    # window.resize(800, 600)
     window.show()
 
+    # Execute App
     sys.exit(app.exec())
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        # Connect to SQLite Database and create a cursor
+        connection = sqlite3.connect("./databases/products.db")
+        main(connection)
+
+    except sqlite3.Error as error:
+        print("Error occurred -", error)
+    
+    

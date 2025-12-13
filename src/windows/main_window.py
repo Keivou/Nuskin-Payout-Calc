@@ -18,3 +18,12 @@ class MainWindow(QMainWindow):
         self.menu = self.menuBar()
         self.management_menu = self.menu.addMenu("Gestionar")
         self.help_manu = self.menu.addMenu("Ayuda")
+
+    def create_menus(self):
+        self.menu = self.menuBar()
+        self.management_menu = self.menu.addMenu("Gestionar")
+        self.help_manu = self.menu.addMenu("Ayuda")
+
+    def create_actions(self):
+        self._add_product_action = QAction("Añadir Producto", self)
+        self._edit_product_action = QAction("Editar Producto", self)

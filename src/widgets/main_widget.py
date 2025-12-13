@@ -2,6 +2,8 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel,
 QPushButton, QGroupBox, QTableView, QLineEdit, QComboBox)
 from PySide6.QtCore import Qt, Slot, Signal
 
+import sqlite3
+
 class MainWidget(QWidget):
 
     def __init__(self):
@@ -11,12 +13,7 @@ class MainWidget(QWidget):
         vertical_layout = QVBoxLayout(self)
 
         # Horizontal layouts to stack
-        marketbox = self.market()
-        productbox = self.product()
-        dcsvbox = self.dc_sv_payout()
-        pracsvbox = self.prac_sv_payout()
-        gsvbox = self.gsv_payout()
-        ltsvbox = self.ltsv_payout()
+        (marketbox, productbox, dcsvbox, pracsvbox, gsvbox, ltsvbox) = self.create_widgets()
 
         # Stacking the layouts
         vertical_layout.addLayout(marketbox)
@@ -39,90 +36,103 @@ class MainWidget(QWidget):
     def create_menus(self):
         self._management_menu = self.menuBar().addMenu("&Gestionar")
         self._management_menu.addAction(self._add_product_action)
+        self._management_menu.addAction(self._edit_product_action)
 
     def create_actions(self):
-        self._add_product_action = QAction("&Añadir Producto", self)
+        self._add_product_action = QAction("Añadir Producto", self)
+        self._edit_product_action = QAction("Editar Producto", self)
     
-    def market(self):
+    def create_widgets(self):
+        ## Market layout
         hbox = QHBoxLayout()
 
         # Market widgets
-        self.market_label = QLabel("Mercado:")
-        self.market_location = QLineEdit("")
+        self.market_widgets(hbox)
 
-        # Add widgets to horizontal box
-        hbox.addWidget(self.market_label)
-        hbox.addWidget(self.market_location)
-        
-        return hbox
-
-    def product(self):
-        hbox = QHBoxLayout()
+        ## Product layout
+        hbox2 = QHBoxLayout()
 
         # Product widgets
-        self.product_label = QLabel("Producto:")
-        self.product_name = QComboBox(self)
+        self.product_widgets(hbox2)
 
         # Quantity widgets
         self.quantity_label = QLabel("Cantidad:")
         self.quantity_value = QLineEdit("")
 
         # Add widgets to horizontal box
-        hbox.addWidget(self.product_label)
-        hbox.addWidget(self.product_name)
-        hbox.addWidget(self.quantity_label)
-        hbox.addWidget(self.quantity_value)
+        hbox2.addWidget(self.quantity_label)
+        hbox2.addWidget(self.quantity_value)
 
-        return hbox
-
-    def dc_sv_payout(self):
-        hbox = QHBoxLayout()
+        ## DC-SV Layout
+        hbox3 = QHBoxLayout()
 
         # DC-SV widgets
         self.dcsv_label = QLabel("DC-SV:")
         self.dcsv_value = QLineEdit("")
 
-        hbox.addWidget(self.dcsv_label)
-        hbox.addWidget(self.dcsv_value)
+        # Add widgets to horizontal box
+        hbox3.addWidget(self.dcsv_label)
+        hbox3.addWidget(self.dcsv_value)
 
-        return hbox
-
-    def prac_sv_payout(self):
-        hbox = QHBoxLayout()
+        ## PRAC-SV Layout
+        hbox4 = QHBoxLayout()
 
         # PRAC-SV widgets
         self.pracsv_label = QLabel("PRAC-SV:")
         self.pracsv_value = QLineEdit("")
 
-        hbox.addWidget(self.pracsv_label)
-        hbox.addWidget(self.pracsv_value)
+        # Add widgets to horizontal box
+        hbox4.addWidget(self.pracsv_label)
+        hbox4.addWidget(self.pracsv_value)
 
-        return hbox
-
-    def gsv_payout(self):
-        hbox = QHBoxLayout()
+        ## GSV Layout
+        hbox5 = QHBoxLayout()
 
         # GSV widgets
         self.gsv_label = QLabel("GSV/VVG:")
         self.gsv_value = QLineEdit("")
 
-        hbox.addWidget(self.gsv_label)
-        hbox.addWidget(self.gsv_value)
+        # Add widgets to horizontal box
+        hbox5.addWidget(self.gsv_label)
+        hbox5.addWidget(self.gsv_value)
 
-        return hbox
-
-    def ltsv_payout(self):
-        hbox = QHBoxLayout()
+        ## LTSV Layout
+        hbox6 = QHBoxLayout()
 
         # LTSV widgets
         self.ltsv_label = QLabel("LTSV:")
         self.ltsv_value = QLineEdit("")
 
-        hbox.addWidget(self.ltsv_label)
-        hbox.addWidget(self.ltsv_value)
+        # Add widgets to horizontal box
+        hbox6.addWidget(self.ltsv_label)
+        hbox6.addWidget(self.ltsv_value)
+        
+        # Return all boxes
+        return hbox, hbox2, hbox3, hbox4, hbox5, hbox6
 
-        return hbox
+    def market_widgets(self, hbox):
+        self.market_label = QLabel("Mercado:")
+        self.market_location = QComboBox(self)
 
+        # self.market_location.addItem("Colombia")
+        # self.market_location.addItem("Argentina")
+        # self.market_location.addItem("Mexico")
+
+        # Connect to database to add combobox items
+        connection = sqlite3.connect("./databases/products.db") # <-- This technically is run from main.py // According to the AI it might be better to make this an absolute path, but I don't think it will be necessary, the code should always be running from the main.py
+        
+        hbox.addWidget(self.market_label)
+        hbox.addWidget(self.market_location)
+        
+
+    def product_widgets(self, hbox):
+        self.product_label = QLabel("Producto:")
+        self.product_name = QComboBox(self)
+
+        hbox.addWidget(self.product_label)
+        hbox.addWidget(self.product_name)
+        
+    
     def calculate_total_payout(self):
         button = QPushButton("Calc Payout")
         try:
