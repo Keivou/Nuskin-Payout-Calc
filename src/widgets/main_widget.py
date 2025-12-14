@@ -114,13 +114,28 @@ class MainWidget(QWidget):
         self.market_label = QLabel("Mercado:")
         self.market_location = QComboBox(self)
 
-        # self.market_location.addItem("Colombia")
-        # self.market_location.addItem("Argentina")
-        # self.market_location.addItem("Mexico")
-
-        # Connect to database to add combobox items
-        connection = sqlite3.connect("./databases/products.db") # <-- This technically is run from main.py // According to the AI it might be better to make this an absolute path, but I don't think it will be necessary, the code should always be running from the main.py
+        # Note: Use a guaranteed absolute path for robustness (recommended practice)
+        DB_PATH = "./databases/products.db"
         
+        # Use 'with' statement for reliable connection handling
+        with sqlite3.connect(DB_PATH) as connection:
+            conn_cursor = connection.cursor()
+
+            # To select market column
+            # Using DISTINCT is usually better for ComboBoxes to avoid duplicates
+            statement = '''SELECT DISTINCT MARKET_LOCATION FROM products'''
+            conn_cursor.execute(statement)
+
+            # 1. FETCH THE DATA ONCE and store it in a variable
+            market_data = conn_cursor.fetchall()
+
+        # 2. ITERATE OVER THE STORED LIST
+        # Python allows direct iteration over the list of tuples
+        for row in market_data:
+            # row is a tuple, e.g., ('Colombia',)
+            self.market_location.addItem(row[0])
+
+        # Add to widget
         hbox.addWidget(self.market_label)
         hbox.addWidget(self.market_location)
         

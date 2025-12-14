@@ -1,4 +1,5 @@
 import sys
+import sqlite3
 from PySide6.QtWidgets import (QApplication, QDialog, QPushButton, 
 QLabel, QLineEdit, QVBoxLayout)
 from PySide6.QtCore import Slot
@@ -8,11 +9,11 @@ from windows.main_window import MainWindow
 
 from init.init_tables import *
 
-import sqlite3
 
-def main(connection):
+def main(connection=None):
     # Initialize product table if products.db doesn't exist
-    init_product_table(connection)
+    if connection:
+        init_product_table(connection)
 
     # QtApp
     app = QApplication(sys.argv)
@@ -36,5 +37,6 @@ if __name__ == "__main__":
 
     except sqlite3.Error as error:
         print("Error occurred -", error)
+        main()
     
     
