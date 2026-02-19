@@ -16,7 +16,7 @@ class MainWidget(QWidget):
         (marketbox, productbox, dcsvbox, pracsvbox, gsvbox, ltsvbox) = self.create_widgets()
 
         # Stacking the layouts
-        vertical_layout.addLayout(marketbox)
+        vertical_layout.addWidget(marketbox)
         vertical_layout.addLayout(productbox)
         vertical_layout.addLayout(dcsvbox)
         vertical_layout.addLayout(pracsvbox)
@@ -44,10 +44,14 @@ class MainWidget(QWidget):
     
     def create_widgets(self):
         ## Market layout
-        hbox = QHBoxLayout()
+        vbox = QVBoxLayout()
 
         # Market widgets
-        self.market_widgets(hbox)
+        self.market_widgets(vbox)
+
+        # MarketBox
+        marketbox = QGroupBox("Mercado")
+        marketbox.setLayout(vbox)
 
         ## Product layout
         hbox2 = QHBoxLayout()
@@ -108,10 +112,9 @@ class MainWidget(QWidget):
         hbox6.addWidget(self.ltsv_value)
         
         # Return all boxes
-        return hbox, hbox2, hbox3, hbox4, hbox5, hbox6
+        return marketbox, hbox2, hbox3, hbox4, hbox5, hbox6
 
-    def market_widgets(self, hbox):
-        self.market_label = QLabel("Mercado:")
+    def market_widgets(self, vbox):
         self.market_location = QComboBox(self)
 
         # Note: Use a guaranteed absolute path for robustness (recommended practice)
@@ -136,8 +139,7 @@ class MainWidget(QWidget):
             self.market_location.addItem(row[0])
 
         # Add to widget
-        hbox.addWidget(self.market_label)
-        hbox.addWidget(self.market_location)
+        vbox.addWidget(self.market_location)
         
 
     def product_widgets(self, hbox):
