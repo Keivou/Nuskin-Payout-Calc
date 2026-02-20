@@ -3,11 +3,15 @@ QPushButton, QGroupBox, QTableView, QLineEdit, QComboBox, QSpinBox)
 from PySide6.QtCore import Qt, Slot, Signal
 
 import sqlite3
+import os
 
 class MainWidget(QWidget):
 
     def __init__(self):
         super().__init__()
+
+        # Style
+        # self.load_stylesheet()
 
         # Overall vertical layout
         vertical_layout = QVBoxLayout(self)
@@ -25,6 +29,7 @@ class MainWidget(QWidget):
 
         # Adding button
         self.calc_button = self.calculate_total_payout()
+        self.calc_button.setStyleSheet("font-weight: bold; border: 2px solid #27ae60;")
         vertical_layout.addWidget(self.calc_button)
 
         # Setting the layout for the window
@@ -66,6 +71,7 @@ class MainWidget(QWidget):
         ds_layout.setLayout(ds_vbox)
         ds_layout.setCheckable(True)
         ds_layout.setChecked(False)
+        # ds_layout.setVisible(False)
 
         ######## Partner Direct Sales Layout ########
         prac_vbox = QVBoxLayout()
@@ -122,7 +128,7 @@ class MainWidget(QWidget):
         self.market_location = QComboBox(self)
 
         # Note: Use a guaranteed absolute path for robustness (recommended practice)
-        DB_PATH = "./databases/products.db"
+        DB_PATH = "./src/databases/products.db"
         
         # Use 'with' statement for reliable connection handling
         with sqlite3.connect(DB_PATH) as connection:
@@ -148,27 +154,18 @@ class MainWidget(QWidget):
 
     def product_widgets(self, vbox):
         # Product Name
-        hbox1 = QHBoxLayout()
-
-        self.product_label = QLabel("Producto:")
         self.product_name = QComboBox(self)
-
-        hbox1.addWidget(self.product_label)
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(QLabel("Producto:"))
         hbox1.addWidget(self.product_name)
 
         # Product Quantity
-        hbox2 = QHBoxLayout()
-
-        self.quantity_label = QLabel("Cantidad:")
         self.quantity_value = QSpinBox()
-
-        hbox2.addWidget(self.quantity_label)
-        hbox2.addWidget(self.quantity_value)
+        hbox1.addWidget(QLabel("Cantidad:"))
+        hbox1.addWidget(self.quantity_value)
 
         # Add Layouts
         vbox.addLayout(hbox1)
-        vbox.addLayout(hbox2)
-
 
     def DC_SV_widgets(self, vbox):
         # Products
@@ -176,12 +173,9 @@ class MainWidget(QWidget):
         self.add_product_button(vbox)
 
         # DC-SV
-        hbox1 = QHBoxLayout()
-
-        self.dcsv_label = QLabel("DC-SV:")
         self.dcsv_value = QSpinBox()
-
-        hbox1.addWidget(self.dcsv_label)
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(QLabel("DC-SV:"))
         hbox1.addWidget(self.dcsv_value)
 
         # Add Layouts
@@ -194,12 +188,9 @@ class MainWidget(QWidget):
         self.add_product_button(vbox)
 
         # PRAC-SV
-        hbox1 = QHBoxLayout()
-
-        self.pracsv_label = QLabel("PRAC-SC:")
         self.pracsv_value = QSpinBox()
-
-        hbox1.addWidget(self.pracsv_label)
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(QLabel("PRAC-SC:"))
         hbox1.addWidget(self.pracsv_value)
 
         # Add Layouts
@@ -207,21 +198,15 @@ class MainWidget(QWidget):
 
     def GSV_widgets(self, vbox):
         # Basic GSV
-        hbox1 = QHBoxLayout()
-
-        self.basic_gsv_label = QLabel("Basic GSV (DC-SV):")
         self.basic_gsv_value = QSpinBox()
-
-        hbox1.addWidget(self.basic_gsv_label)
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(QLabel("Basic GSV (DC-SV):"))
         hbox1.addWidget(self.basic_gsv_value)
 
         # AdM GSV
-        hbox2 = QHBoxLayout()
-
-        self.adm_gsv_label = QLabel("AdM GSV:")
         self.adm_gsv_value = QSpinBox()
-
-        hbox2.addWidget(self.adm_gsv_label)
+        hbox2 = QHBoxLayout()
+        hbox2.addWidget(QLabel("AdM GSV:"))
         hbox2.addWidget(self.adm_gsv_value)
 
         # Add Layouts
@@ -231,12 +216,9 @@ class MainWidget(QWidget):
 
     def LTSV_widgets(self, vbox):
         # RdM LTSV
-        hbox1 = QHBoxLayout()
-        
-        self.ltsv_label = QLabel("LTSV:")
         self.ltsv_value = QSpinBox()
-
-        hbox1.addWidget(self.ltsv_label)
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(QLabel("LTSV:"))
         hbox1.addWidget(self.ltsv_value)
 
         # Add Layouts
@@ -244,30 +226,26 @@ class MainWidget(QWidget):
 
     def preview_widgets(self, vbox):
         # DC-SV
-        hbox1 = QHBoxLayout()
         self.preview_dcsv_value = QSpinBox()
-
+        hbox1 = QHBoxLayout()
         hbox1.addWidget(QLabel("DC-SV:"))
         hbox1.addWidget(self.preview_dcsv_value)
 
         # PRAC-SV
-        hbox2 = QHBoxLayout()
         self.preview_pracsv_value = QSpinBox()
-
+        hbox2 = QHBoxLayout()
         hbox2.addWidget(QLabel("PRAC-SV:"))
         hbox2.addWidget(self.preview_pracsv_value)
 
         # GSV
-        hbox3 = QHBoxLayout()
         self.preview_gsv_value = QSpinBox()
-
+        hbox3 = QHBoxLayout()
         hbox3.addWidget(QLabel("GSV:"))
         hbox3.addWidget(self.preview_gsv_value)
 
         # LTSV
-        hbox4 = QHBoxLayout()
         self.preview_ltsv_value = QSpinBox()
-
+        hbox4 = QHBoxLayout()
         hbox4.addWidget(QLabel("LTSV:"))
         hbox4.addWidget(self.preview_ltsv_value)
 
@@ -299,3 +277,17 @@ class MainWidget(QWidget):
         payout = dcsv + pracsv + gsv + ltsv
         print(payout)
         return button
+
+    ############## STYLE ##############
+
+    def load_stylesheet(self):
+        # 1. Locate the file (assuming src/styles/theme.css)
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        css_path = os.path.join(script_dir, "../../styles", "main_widget.css")
+
+        # 2. Read and apply
+        if os.path.exists(css_path):
+            with open(css_path, "r") as f:
+                self.setStyleSheet(f.read())
+        else:
+            print(f"Warning: Stylesheet not found at {css_path}")
