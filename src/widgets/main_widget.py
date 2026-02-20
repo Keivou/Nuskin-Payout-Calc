@@ -35,19 +35,19 @@ class MainWidget(QWidget):
         # Setting the layout for the window
         self.setLayout(vertical_layout)
 
-        # Button doesn't exist yet
+        # Button work yetc
         self.calc_button.clicked.connect(self.calculate_total_payout)
 
     ############## WINDOW ELEMENTS ##############
 
     def create_menus(self):
         self._management_menu = self.menuBar().addMenu("&Gestionar")
+        self._add_product_action = QAction("Añadir Producto")
+        self._edit_product_action = QAction("Editar Producto")
+
         self._management_menu.addAction(self._add_product_action)
         self._management_menu.addAction(self._edit_product_action)
 
-    def create_actions(self):
-        self._add_product_action = QAction("Añadir Producto", self)
-        self._edit_product_action = QAction("Editar Producto", self)
     
     def create_layouts(self):
         ######## Market Layout ########
@@ -157,6 +157,29 @@ class MainWidget(QWidget):
         self.product_name = QComboBox(self)
         hbox1 = QHBoxLayout()
         hbox1.addWidget(QLabel("Producto:"))
+
+        # Note: Use a guaranteed absolute path for robustness (recommended practice)
+        DB_PATH = "./src/databases/products.db"
+        
+        # Use 'with' statement for reliable connection handling
+        with sqlite3.connect(DB_PATH) as connection:
+            conn_cursor = connection.cursor()
+
+            # To select market column
+            # Using DISTINCT is usually better for ComboBoxes to avoid duplicates
+            statement = '''SELECT DISTINCT PRODUCT_DESCRIPTION FROM products'''
+            conn_cursor.execute(statement)
+
+            # 1. FETCH THE DATA ONCE and store it in a variable
+            products = conn_cursor.fetchall()
+
+        # 2. ITERATE OVER THE STORED LIST
+        # Python allows direct iteration over the list of tuples
+        for row in products:
+            # row is a tuple, e.g., ('Colombia',)
+            self.product_name.addItem(row[0])
+
+        # Add to widget
         hbox1.addWidget(self.product_name)
 
         # Product Quantity
