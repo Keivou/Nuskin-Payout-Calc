@@ -10,33 +10,34 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Style
-        # self.load_stylesheet()
-
         # Overall vertical layout
         vertical_layout = QVBoxLayout(self)
 
         # Sections to stack
-        (market_layout, ds_layout, prac_layout, gsv_layout, ltsv_layout, preview_layout) = self.create_layouts()
+        (market_layout, dcsv_layout, prac_layout, gsv_layout, ltsv_layout, preview_layout) = self.create_layouts()
 
         # Stacking the sections
         vertical_layout.addWidget(market_layout)
-        vertical_layout.addWidget(ds_layout)
+        vertical_layout.addWidget(dcsv_layout)
         vertical_layout.addWidget(prac_layout)
         vertical_layout.addWidget(gsv_layout)
         vertical_layout.addWidget(ltsv_layout)
         vertical_layout.addWidget(preview_layout)
 
-        # Adding button
-        self.calc_button = self.calculate_total_payout()
-        self.calc_button.setStyleSheet("font-weight: bold; border: 2px solid #27ae60;")
-        vertical_layout.addWidget(self.calc_button)
+        # Create calc payout button and style
+        self.calc_payout_button = QPushButton("Calc Payout")
+        self.calc_payout_button.setStyleSheet("font-weight: bold; border: 2px solid #27ae60;")
+        
+        # Add calc button at the end of the layout
+        vertical_layout.addWidget(self.calc_payout_button)
 
         # Setting the layout for the window
         self.setLayout(vertical_layout)
 
-        # Button work yetc
-        self.calc_button.clicked.connect(self.calculate_total_payout)
+        # Button clicks
+        self.calc_payout_button.clicked.connect(self.calculate_total_payout)
+        self.dcsv_button.clicked.connect(self.product_widgets(self.dcsv_button))
+        self.pracsv_button.clicked.connect(self.product_widgets(self.pracsv_button))
 
     ############## WINDOW ELEMENTS ##############
 
@@ -50,54 +51,86 @@ class MainWidget(QWidget):
 
     
     def create_layouts(self):
-        ######## Market Layout ########
-        market_vbox = QVBoxLayout()
+        ################ Market Layout ################
+        self.market_vbox = QVBoxLayout()
 
         # Add widgets
-        self.market_widgets(market_vbox)
+        self.market_widgets(self.market_vbox)
 
         # Set layout
-        market_layout = QGroupBox("Mercado")
-        market_layout.setLayout(market_vbox)
+        self.market_layout = QGroupBox("Mercado")
+        self.market_layout.setLayout(self.market_vbox)
 
-        ######## Direct Sales Layout ########
-        ds_vbox = QVBoxLayout()
+        ################ Direct Sales Layout ################
+
+        # Create GroupBox
+        self.dcsv_layout = QGroupBox("Ventas Directas")
+        self.dcsv_layout.setCheckable(True)
+        self.dcsv_layout.setChecked(False)
+
+        # Create First vbox layer
+        group_vbox = QVBoxLayout(self.dcsv_layout) # Parent is the groupbox, alternative to using setLayout
+
+        # Create a CONTAINER widget to hold the actual content
+        self.dcsv_container = QWidget()
+        self.dcsv_vbox1 = QVBoxLayout(self.dcsv_container) # This would be vbox1
+
+        # Create vbox2 and vbox3 and add them to vbox1
+        (self.dcsv_vbox2, self.dcsv_vbox3, self.dcsv_button, self.dcsv_value) = self.basic_section_widgets(vbox1=self.dcsv_vbox1, value_label="DCSV:")
+        self.dcsv_vbox1.addLayout(self.dcsv_vbox2)
+        self.dcsv_vbox1.addLayout(self.dcsv_vbox3)
+
+        # Add the container to the GroupBox
+        group_vbox.addWidget(self.dcsv_container)
+
+        # Hide the container initially
+        self.dcsv_container.setVisible(False)
+
+        # CONNECT the signal
+        self.dcsv_layout.toggled.connect(self.dcsv_container.setVisible)
+
+        ################ Partner Direct Sales Layout ################
+
+        # Create GroupBox
+        self.pracsv_layout = QGroupBox("Ventas Directas")
+        self.pracsv_layout.setCheckable(True)
+        self.pracsv_layout.setChecked(False)
+
+        # Create First vbox layer
+        group_vbox = QVBoxLayout(self.pracsv_layout) # Parent is the groupbox, alternative to using setLayout
+
+        # Create a CONTAINER widget to hold the actual content
+        self.pracsv_container = QWidget()
+        self.pracsv_vbox1 = QVBoxLayout(self.pracsv_container) # This would be vbox1
+
+        # Create vbox2 and vbox3 and add them to vbox1
+        (self.pracsv_vbox2, self.pracsv_vbox3, self.pracsv_button, self.pracsv_value) = self.basic_section_widgets(vbox1=self.pracsv_vbox1, value_label="DCSV:")
+        self.pracsv_vbox1.addLayout(self.pracsv_vbox2)
+        self.pracsv_vbox1.addLayout(self.pracsv_vbox3)
+
+        # Add the container to the GroupBox
+        group_vbox.addWidget(self.pracsv_container)
+
+        # Hide the container initially
+        self.pracsv_container.setVisible(False)
+
+        # CONNECT the signal
+        self.pracsv_layout.toggled.connect(self.pracsv_container.setVisible)
+
+        ################ Construction Bonus (GSV) Layout ################
+
+        self.gsv_vbox = QVBoxLayout()
 
         # Add widgets
-        self.DC_SV_widgets(ds_vbox)
-
-        # Set layout
-        ds_layout = QGroupBox("Ventas Directas")
-        ds_layout.setLayout(ds_vbox)
-        ds_layout.setCheckable(True)
-        ds_layout.setChecked(False)
-        # ds_layout.setVisible(False)
-
-        ######## Partner Direct Sales Layout ########
-        prac_vbox = QVBoxLayout()
-
-        # Add widgets
-        self.PRAC_SV_widgets(prac_vbox)
-
-        # Set layout
-        prac_layout = QGroupBox("Ventas De Socios Directos")
-        prac_layout.setLayout(prac_vbox)
-        prac_layout.setCheckable(True)
-        prac_layout.setChecked(False)
-
-        ######## Construction Bonus (GSV) Layout ########
-        gsv_vbox = QVBoxLayout()
-
-        # Add widgets
-        self.GSV_widgets(gsv_vbox)
+        self.GSV_widgets(self.gsv_vbox)
 
         # Set layout
         gsv_layout = QGroupBox("Bono Constructor")
-        gsv_layout.setLayout(gsv_vbox)
+        gsv_layout.setLayout(self.gsv_vbox)
         gsv_layout.setCheckable(True)
         gsv_layout.setChecked(False)
 
-        ######## Leadership Bonux Layout ########
+        ################ Leadership Bonux Layout ################
         ltsv_vbox = QVBoxLayout()
 
         # Add widgets
@@ -120,7 +153,7 @@ class MainWidget(QWidget):
         preview_layout.setLayout(preview_vbox)
         
         ######## Return all layouts ########
-        return market_layout, ds_layout, prac_layout, gsv_layout, ltsv_layout, preview_layout
+        return self.market_layout, self.dcsv_layout, self.pracsv_layout, gsv_layout, ltsv_layout, preview_layout
 
     ############## WIDGETS ##############
 
@@ -152,11 +185,12 @@ class MainWidget(QWidget):
         market_vbox.addWidget(self.market_location)
         
 
-    def product_widgets(self, vbox):
+    def product_widgets(self, vbox1):
+        # Create vbox2
+        vbox2 = QVBoxLayout()
+
         # Product Name
-        self.product_name = QComboBox(self)
-        hbox1 = QHBoxLayout()
-        hbox1.addWidget(QLabel("Producto:"))
+        product_name = QComboBox(self)
 
         # Note: Use a guaranteed absolute path for robustness (recommended practice)
         DB_PATH = "./src/databases/products.db"
@@ -177,47 +211,47 @@ class MainWidget(QWidget):
         # Python allows direct iteration over the list of tuples
         for row in products:
             # row is a tuple, e.g., ('Colombia',)
-            self.product_name.addItem(row[0])
-
-        # Add to widget
-        hbox1.addWidget(self.product_name)
+            product_name.addItem(row[0])
 
         # Product Quantity
-        self.quantity_value = QSpinBox()
+        quantity_value = QSpinBox()
+        
+        # Add widgets to hbox
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(QLabel("Producto:"))
+        hbox1.addWidget(product_name)
         hbox1.addWidget(QLabel("Cantidad:"))
-        hbox1.addWidget(self.quantity_value)
+        hbox1.addWidget(quantity_value)
 
         # Add Layouts
-        vbox.addLayout(hbox1)
+        inner_vbox.addLayout(hbox1)
+        outer_vbox.addLayout(inner_vbox)
+        
+        return inner_vbox, product_name, quantity_value
 
-    def DC_SV_widgets(self, vbox):
-        # Products
-        self.product_widgets(vbox)
-        self.add_product_button(vbox)
 
-        # DC-SV
-        self.dcsv_value = QSpinBox()
+    def basic_section_widgets(self, vbox1, value_label:str="Value"):
+        # Widgets
+        vbox2 = self.product_widgets(vbox1)
+        button = QPushButton("Añadir Producto")
+        value = QSpinBox()
+
+        # Add to hbox
         hbox1 = QHBoxLayout()
-        hbox1.addWidget(QLabel("DC-SV:"))
-        hbox1.addWidget(self.dcsv_value)
+        hbox1.addWidget(QLabel(value_label))
+        hbox1.addWidget(value)
 
-        # Add Layouts
-        vbox.addLayout(hbox1)
+        # Create vbox3
+        vbox3 = QVBoxLayout()
+        vbox3.addWidget(button)
+        vbox3.addLayout(hbox1)
 
+        # Place vbox2 and vbox3 inside vbox1
+        vbox1.addLayout(vbox2)
+        vbox1.addLayout(vbox3)
 
-    def PRAC_SV_widgets(self, vbox):
-        # Products
-        self.product_widgets(vbox)
-        self.add_product_button(vbox)
+        return vbox2, vbox3, button, value
 
-        # PRAC-SV
-        self.pracsv_value = QSpinBox()
-        hbox1 = QHBoxLayout()
-        hbox1.addWidget(QLabel("PRAC-SC:"))
-        hbox1.addWidget(self.pracsv_value)
-
-        # Add Layouts
-        vbox.addLayout(hbox1)
 
     def GSV_widgets(self, vbox):
         # Basic GSV
@@ -279,38 +313,13 @@ class MainWidget(QWidget):
         vbox.addLayout(hbox4)
 
 
-    ############## BUTTONS ##############
-
-    def add_product_button(self, vbox):
-        button = QPushButton("Añadir Producto")
-        vbox.addWidget(button)
+    ############## CALCULATION LOGIC ##############
     
-
     def calculate_total_payout(self):
-        button = QPushButton("Calc Payout")
-        try:
-            dcsv = float(self.dcsv_value.text())
-            pracsv = float(self.pracsv_value.text())
-            gsv = float(self.gsv_value.text())
-            ltsv = float(self.ltsv_value.text())
-        except ValueError:
-            # This is only triggered when the app starts
-            return button
+        dcsv = float(self.preview_dcsv_value.text())
+        pracsv = float(self.preview_pracsv_value.text())
+        gsv = float(self.preview_gsv_value.text())
+        ltsv = float(self.preview_ltsv_value.text())
 
         payout = dcsv + pracsv + gsv + ltsv
         print(payout)
-        return button
-
-    ############## STYLE ##############
-
-    def load_stylesheet(self):
-        # 1. Locate the file (assuming src/styles/theme.css)
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        css_path = os.path.join(script_dir, "../../styles", "main_widget.css")
-
-        # 2. Read and apply
-        if os.path.exists(css_path):
-            with open(css_path, "r") as f:
-                self.setStyleSheet(f.read())
-        else:
-            print(f"Warning: Stylesheet not found at {css_path}")
