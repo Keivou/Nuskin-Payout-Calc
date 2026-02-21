@@ -31,3 +31,12 @@ self.ds_container.setVisible(False)
 # 7. CONNECT the signal
 self.ds_layout.toggled.connect(self.ds_container.setVisible)
 ```
+
+## Data fetching
+
+This avoids constantly revisiting the db and trying to fetch inside the layout creation
+
+- Initialize Data: Query the database once and build the self.market_catalog dictionary.
+- Build UI: Create the Market ComboBox and the Product ComboBoxes.
+- Initial Load: Call self.update_product_list(self.market_location.currentText()) once so the app doesn't start with an empty product list.
+- Connect Signal: self.market_location.currentTextChanged.connect(self.update_product_list).
