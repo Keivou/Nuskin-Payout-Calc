@@ -7,7 +7,7 @@ def init_product_table(connection):
             CREATE TABLE IF NOT EXISTS products (
                 SKU INTEGER PRIMARY KEY NOT NULL,
                 MARKET_LOCATION TEXT NOT NULL,
-                PRODUCT_DESCRIPTION TEXT NOT NULL,
+                PRODUCT_NAME TEXT NOT NULL,
                 PUBLIC_PRICE FLOAT NOT NULL,
                 PUBLIC_PRICE_NO_TAX FLOAT NOT NULL,
                 MEMBER_PRICE FLOAT NOT NULL,
@@ -22,7 +22,7 @@ def init_product_table(connection):
         conn_cursor.execute("""INSERT INTO 
                             products (SKU,
                                     MARKET_LOCATION,
-                                    PRODUCT_DESCRIPTION,
+                                    PRODUCT_NAME,
                                     PUBLIC_PRICE,
                                     PUBLIC_PRICE_NO_TAX,
                                     MEMBER_PRICE,
@@ -41,10 +41,11 @@ def init_product_table(connection):
                                     727650.00,
                                     1000.00)
                             """)
+
         conn_cursor.execute("""INSERT INTO 
                             products (SKU,
                                     MARKET_LOCATION,
-                                    PRODUCT_DESCRIPTION,
+                                    PRODUCT_NAME,
                                     PUBLIC_PRICE,
                                     PUBLIC_PRICE_NO_TAX,
                                     MEMBER_PRICE,
@@ -55,6 +56,78 @@ def init_product_table(connection):
                             VALUES (50130478,
                                     'COLOMBIA',
                                     'Kit Belleza & Bienestar',
+                                    2940000.00,
+                                    2470588.00,
+                                    2630000.00,
+                                    2210084.00,
+                                    260504.00,
+                                    1392000.00,
+                                    500.00
+                                    )
+                            """)
+
+        conn_cursor.execute("""INSERT INTO 
+                            products (SKU,
+                                    MARKET_LOCATION,
+                                    PRODUCT_NAME,
+                                    PUBLIC_PRICE,
+                                    PUBLIC_PRICE_NO_TAX,
+                                    MEMBER_PRICE,
+                                    MEMBER_PRICE_NO_TAX,
+                                    RETAIL_BONUS_NO_TAX,
+                                    VCV,
+                                    VV)
+                            VALUES (50130474,
+                                    'COLOMBIA',
+                                    'Colágeno',
+                                    2940000.00,
+                                    2470588.00,
+                                    2630000.00,
+                                    2210084.00,
+                                    260504.00,
+                                    1392000.00,
+                                    500.00
+                                    )
+                            """)
+
+        conn_cursor.execute("""INSERT INTO 
+                            products (SKU,
+                                    MARKET_LOCATION,
+                                    PRODUCT_NAME,
+                                    PUBLIC_PRICE,
+                                    PUBLIC_PRICE_NO_TAX,
+                                    MEMBER_PRICE,
+                                    MEMBER_PRICE_NO_TAX,
+                                    RETAIL_BONUS_NO_TAX,
+                                    VCV,
+                                    VV)
+                            VALUES (50430478,
+                                    'COLOMBIA',
+                                    'LumiSpa',
+                                    2940000.00,
+                                    2470588.00,
+                                    2630000.00,
+                                    2210084.00,
+                                    260504.00,
+                                    1392000.00,
+                                    500.00
+                                    )
+                            """)
+
+        conn_cursor.execute("""INSERT INTO 
+                            products (SKU,
+                                    MARKET_LOCATION,
+                                    PRODUCT_NAME,
+                                    PUBLIC_PRICE,
+                                    PUBLIC_PRICE_NO_TAX,
+                                    MEMBER_PRICE,
+                                    MEMBER_PRICE_NO_TAX,
+                                    RETAIL_BONUS_NO_TAX,
+                                    VCV,
+                                    VV)
+                            VALUES (50134478,
+                                    'ARGENTINA',
+                                    'LumiSpa',
                                     2940000.00,
                                     2470588.00,
                                     2630000.00,
