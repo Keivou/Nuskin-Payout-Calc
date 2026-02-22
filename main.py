@@ -14,8 +14,8 @@ from qt_material import apply_stylesheet
 
 def main(connection=None):
     # Initialize product table if products.db doesn't exist
-    if connection:
-        init_product_table(connection)
+    # if connection:
+    #     init_product_table(connection)
 
     # QtApp
     app = QApplication(sys.argv)

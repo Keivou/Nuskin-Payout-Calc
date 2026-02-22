@@ -36,8 +36,8 @@ class MainWidget(QWidget):
 
         # Button clicks
         self.calc_payout_button.clicked.connect(self.calculate_total_payout)
-        self.dcsv_button.clicked.connect(self.product_widgets(self.dcsv_button))
-        self.pracsv_button.clicked.connect(self.product_widgets(self.pracsv_button))
+        # self.dcsv_button.clicked.connect(self.product_widgets(self.dcsv_button))
+        # self.pracsv_button.clicked.connect(self.product_widgets(self.pracsv_button))
 
     ############## WINDOW ELEMENTS ##############
 
@@ -51,11 +51,18 @@ class MainWidget(QWidget):
 
     
     def create_layouts(self):
+        ################ Fetch DB Data ################
+        self.fetch_from_db()
+        print(self.products_db)
+
         ################ Market Layout ################
         self.market_vbox = QVBoxLayout()
 
-        # Add widgets
-        self.market_widgets(self.market_vbox)
+        # Create and add widget
+        market_combobox = QComboBox()
+        for market in set(self.products_db["MARKET_LOCATION"]):
+            market_combobox.addItem(market)
+        self.market_vbox.addWidget(market_combobox)
 
         # Set layout
         self.market_layout = QGroupBox("Mercado")
@@ -156,64 +163,13 @@ class MainWidget(QWidget):
         return self.market_layout, self.dcsv_layout, self.pracsv_layout, gsv_layout, ltsv_layout, preview_layout
 
     ############## WIDGETS ##############
-
-    def market_widgets(self, market_vbox):
-        self.market_location = QComboBox(self)
-
-        # Note: Use a guaranteed absolute path for robustness (recommended practice)
-        DB_PATH = "./src/databases/products.db"
         
-        # Use 'with' statement for reliable connection handling
-        with sqlite3.connect(DB_PATH) as connection:
-            conn_cursor = connection.cursor()
-
-            # To select market column
-            # Using DISTINCT is usually better for ComboBoxes to avoid duplicates
-            statement = '''SELECT DISTINCT MARKET_LOCATION FROM products'''
-            conn_cursor.execute(statement)
-
-            # 1. FETCH THE DATA ONCE and store it in a variable
-            market_data = conn_cursor.fetchall()
-
-        # 2. ITERATE OVER THE STORED LIST
-        # Python allows direct iteration over the list of tuples
-        for row in market_data:
-            # row is a tuple, e.g., ('Colombia',)
-            self.market_location.addItem(row[0])
-
-        # Add to widget
-        market_vbox.addWidget(self.market_location)
-        
-
     def product_widgets(self, vbox1):
         # Create vbox2
         vbox2 = QVBoxLayout()
 
-        # Product Name
-        product_name = QComboBox(self)
-
-        # Note: Use a guaranteed absolute path for robustness (recommended practice)
-        DB_PATH = "./src/databases/products.db"
-        
-        # Use 'with' statement for reliable connection handling
-        with sqlite3.connect(DB_PATH) as connection:
-            conn_cursor = connection.cursor()
-
-            # To select market column
-            # Using DISTINCT is usually better for ComboBoxes to avoid duplicates
-            statement = '''SELECT DISTINCT PRODUCT_DESCRIPTION FROM products'''
-            conn_cursor.execute(statement)
-
-            # 1. FETCH THE DATA ONCE and store it in a variable
-            products = conn_cursor.fetchall()
-
-        # 2. ITERATE OVER THE STORED LIST
-        # Python allows direct iteration over the list of tuples
-        for row in products:
-            # row is a tuple, e.g., ('Colombia',)
-            product_name.addItem(row[0])
-
-        # Product Quantity
+        # Widgets
+        product_name = QComboBox()
         quantity_value = QSpinBox()
         
         # Add widgets to hbox
@@ -224,15 +180,15 @@ class MainWidget(QWidget):
         hbox1.addWidget(quantity_value)
 
         # Add Layouts
-        inner_vbox.addLayout(hbox1)
-        outer_vbox.addLayout(inner_vbox)
+        vbox2.addLayout(hbox1)
+        vbox1.addLayout(vbox2)
         
-        return inner_vbox, product_name, quantity_value
+        return vbox2, product_name, quantity_value
 
 
     def basic_section_widgets(self, vbox1, value_label:str="Value"):
         # Widgets
-        vbox2 = self.product_widgets(vbox1)
+        (vbox2, product_name, quantity_value) = self.product_widgets(vbox1)
         button = QPushButton("Añadir Producto")
         value = QSpinBox()
 
@@ -323,3 +279,35 @@ class MainWidget(QWidget):
 
         payout = dcsv + pracsv + gsv + ltsv
         print(payout)
+
+    ############## FETCH FROM DB ##############
+
+    def fetch_from_db(self):
+        # Note: Change to a guaranteed absolute path for robustness (recommended practice)
+        DB_PATH = "./src/databases/products.db"
+        
+        # Use 'with' statement for reliable connection handling
+        with sqlite3.connect(DB_PATH) as connection:
+            conn_cursor = connection.cursor()
+
+            # To select market column
+            # Using DISTINCT is usually better for ComboBoxes to avoid duplicates
+            fetch_data = '''SELECT * FROM products'''
+            conn_cursor.execute(fetch_data)
+
+            # 1. FETCH THE DATA ONCE and store it in a variable
+            data = conn_cursor.fetchall()
+
+        # Variables from db columns
+        sku_number = []
+        market_location = []
+        product_name = []
+
+        for row in data:
+            # row is a tuple
+            sku_number.append(row[0])
+            market_location.append(row[1])
+            product_name.append(row[2])
+
+        # Save all the data into a dictionary
+        self.products_db = {"SKU": sku_number, "MARKET_LOCATION": market_location, "PRODUCT_NAME": product_name}
