@@ -66,7 +66,11 @@ class MainWidget(QWidget):
 
         ################ Direct Sales Layout ################
 
+        # Create layouts
         dcsv_layout = self.create_dcsv_layout()
+
+        # Update the comboboxes
+        
 
         ################ Partner Direct Sales Layout ################
 
@@ -74,38 +78,15 @@ class MainWidget(QWidget):
 
         ################ Construction Bonus (GSV) Layout ################
 
-        self.gsv_vbox = QVBoxLayout()
-
-        # Add widgets
-        self.GSV_widgets(self.gsv_vbox)
-
-        # Set layout
-        gsv_layout = QGroupBox("Bono Constructor")
-        gsv_layout.setLayout(self.gsv_vbox)
-        gsv_layout.setCheckable(True)
-        gsv_layout.setChecked(False)
+        gsv_layout = self.create_gsv_layout()
 
         ################ Leadership Bonux Layout ################
-        ltsv_vbox = QVBoxLayout()
-
-        # Add widgets
-        self.LTSV_widgets(ltsv_vbox)
-
-        # Set layout
-        ltsv_layout = QGroupBox("Bono Por Liderazgo")
-        ltsv_layout.setLayout(ltsv_vbox)
-        ltsv_layout.setCheckable(True)
-        ltsv_layout.setChecked(False)
+        
+        ltsv_layout = self.create_ltsv_layout()
 
         ######## Final Preview Layout ########
-        preview_vbox = QVBoxLayout()
-
-        # Add widgets
-        self.preview_widgets(preview_vbox)
-
-        # Set layout
-        preview_layout = QGroupBox("Preview")
-        preview_layout.setLayout(preview_vbox)
+        
+        preview_layout = self.create_preview_layout()
         
         ######## Return all layouts ########
         return market_layout, dcsv_layout, pracsv_layout, gsv_layout, ltsv_layout, preview_layout
@@ -190,10 +171,48 @@ class MainWidget(QWidget):
         return groupbox
 
     def create_gsv_layout(self):
-        pass
+        # Create vbox
+        gsv_vbox = QVBoxLayout()
+
+        # Add widgets
+        self.GSV_widgets(gsv_vbox)
+
+        # Set layout
+        gsv_layout = QGroupBox("Bono Constructor")
+        gsv_layout.setLayout(gsv_vbox)
+        gsv_layout.setCheckable(True)
+        gsv_layout.setChecked(False)
+
+        return gsv_layout
+
 
     def create_ltsv_layout(self):
-        pass
+        # Create vbox
+        ltsv_vbox = QVBoxLayout()
+
+        # Add widgets
+        self.LTSV_widgets(ltsv_vbox)
+
+        # Set layout
+        ltsv_layout = QGroupBox("Bono Por Liderazgo")
+        ltsv_layout.setLayout(ltsv_vbox)
+        ltsv_layout.setCheckable(True)
+        ltsv_layout.setChecked(False)
+        
+        return ltsv_layout
+
+    def create_preview_layout(self):
+        # Create vbox
+        preview_vbox = QVBoxLayout()
+
+        # Add widgets
+        self.preview_widgets(preview_vbox)
+
+        # Set layout
+        preview_layout = QGroupBox("Preview")
+        preview_layout.setLayout(preview_vbox)
+        
+        return preview_layout
     
     ############## HELPER FUNCTIONS ##############
         
@@ -223,7 +242,7 @@ class MainWidget(QWidget):
         return vbox2, button, value
 
 
-    def GSV_widgets(self, vbox):
+    def GSV_widgets(self, vbox1):
         # Basic GSV
         self.basic_gsv_value = QSpinBox()
         hbox1 = QHBoxLayout()
@@ -237,11 +256,11 @@ class MainWidget(QWidget):
         hbox2.addWidget(self.adm_gsv_value)
 
         # Add Layouts
-        vbox.addLayout(hbox1)
-        vbox.addLayout(hbox2)
+        vbox1.addLayout(hbox1)
+        vbox1.addLayout(hbox2)
 
 
-    def LTSV_widgets(self, vbox):
+    def LTSV_widgets(self, vbox1):
         # RdM LTSV
         self.ltsv_value = QSpinBox()
         hbox1 = QHBoxLayout()
@@ -249,9 +268,9 @@ class MainWidget(QWidget):
         hbox1.addWidget(self.ltsv_value)
 
         # Add Layouts
-        vbox.addLayout(hbox1)
+        vbox1.addLayout(hbox1)
 
-    def preview_widgets(self, vbox):
+    def preview_widgets(self, vbox1):
         # DC-SV
         self.preview_dcsv_value = QSpinBox()
         hbox1 = QHBoxLayout()
@@ -277,10 +296,10 @@ class MainWidget(QWidget):
         hbox4.addWidget(self.preview_ltsv_value)
 
         # Add Layouts
-        vbox.addLayout(hbox1)
-        vbox.addLayout(hbox2)
-        vbox.addLayout(hbox3)
-        vbox.addLayout(hbox4)
+        vbox1.addLayout(hbox1)
+        vbox1.addLayout(hbox2)
+        vbox1.addLayout(hbox3)
+        vbox1.addLayout(hbox4)
 
 
     ############## BUTTONS ##############
