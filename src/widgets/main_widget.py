@@ -11,28 +11,32 @@ class MainWidget(QWidget):
         super().__init__()
 
         # Overall vertical layout
-        vertical_layout = QVBoxLayout(self)
+        window_layout = QVBoxLayout(self)
+
+        # Registries
+        self.dcsv_product_reg = []
+        self.pracsv_product_reg = []
 
         # Sections to stack
         (market_layout, dcsv_layout, prac_layout, gsv_layout, ltsv_layout, preview_layout) = self.create_layouts()
 
         # Stacking the sections
-        vertical_layout.addWidget(market_layout)
-        vertical_layout.addWidget(dcsv_layout)
-        vertical_layout.addWidget(prac_layout)
-        vertical_layout.addWidget(gsv_layout)
-        vertical_layout.addWidget(ltsv_layout)
-        vertical_layout.addWidget(preview_layout)
+        window_layout.addWidget(market_layout)
+        window_layout.addWidget(dcsv_layout)
+        window_layout.addWidget(prac_layout)
+        window_layout.addWidget(gsv_layout)
+        window_layout.addWidget(ltsv_layout)
+        window_layout.addWidget(preview_layout)
 
         # Create calc payout button and style
         self.calc_payout_button = QPushButton("Calc Payout")
         self.calc_payout_button.setStyleSheet("font-weight: bold; border: 2px solid #27ae60;")
         
         # Add calc button at the end of the layout
-        vertical_layout.addWidget(self.calc_payout_button)
+        window_layout.addWidget(self.calc_payout_button)
 
         # Setting the layout for the window
-        self.setLayout(vertical_layout)
+        self.setLayout(window_layout)
 
         # Button clicks
         self.calc_payout_button.clicked.connect(self.calculate_total_payout)
@@ -52,77 +56,21 @@ class MainWidget(QWidget):
     
     def create_layouts(self):
         ################ Fetch DB Data ################
+
         self.fetch_from_db()
         print(self.products_db)
 
         ################ Market Layout ################
-        self.market_vbox = QVBoxLayout()
 
-        # Create and add widget
-        market_combobox = QComboBox()
-        for market in set(self.products_db["MARKET_LOCATION"]):
-            market_combobox.addItem(market)
-        self.market_vbox.addWidget(market_combobox)
-
-        # Set layout
-        self.market_layout = QGroupBox("Mercado")
-        self.market_layout.setLayout(self.market_vbox)
+        market_layout = self.create_market_layout()
 
         ################ Direct Sales Layout ################
 
-        # Create GroupBox
-        self.dcsv_layout = QGroupBox("Ventas Directas")
-        self.dcsv_layout.setCheckable(True)
-        self.dcsv_layout.setChecked(False)
-
-        # Create First vbox layer
-        group_vbox = QVBoxLayout(self.dcsv_layout) # Parent is the groupbox, alternative to using setLayout
-
-        # Create a CONTAINER widget to hold the actual content
-        self.dcsv_container = QWidget()
-        self.dcsv_vbox1 = QVBoxLayout(self.dcsv_container) # This would be vbox1
-
-        # Create vbox2 and vbox3 and add them to vbox1
-        (self.dcsv_vbox2, self.dcsv_vbox3, self.dcsv_button, self.dcsv_value) = self.basic_section_widgets(vbox1=self.dcsv_vbox1, value_label="DCSV:")
-        self.dcsv_vbox1.addLayout(self.dcsv_vbox2)
-        self.dcsv_vbox1.addLayout(self.dcsv_vbox3)
-
-        # Add the container to the GroupBox
-        group_vbox.addWidget(self.dcsv_container)
-
-        # Hide the container initially
-        self.dcsv_container.setVisible(False)
-
-        # CONNECT the signal
-        self.dcsv_layout.toggled.connect(self.dcsv_container.setVisible)
+        dcsv_layout = self.create_dcsv_layout()
 
         ################ Partner Direct Sales Layout ################
 
-        # Create GroupBox
-        self.pracsv_layout = QGroupBox("Ventas Directas")
-        self.pracsv_layout.setCheckable(True)
-        self.pracsv_layout.setChecked(False)
-
-        # Create First vbox layer
-        group_vbox = QVBoxLayout(self.pracsv_layout) # Parent is the groupbox, alternative to using setLayout
-
-        # Create a CONTAINER widget to hold the actual content
-        self.pracsv_container = QWidget()
-        self.pracsv_vbox1 = QVBoxLayout(self.pracsv_container) # This would be vbox1
-
-        # Create vbox2 and vbox3 and add them to vbox1
-        (self.pracsv_vbox2, self.pracsv_vbox3, self.pracsv_button, self.pracsv_value) = self.basic_section_widgets(vbox1=self.pracsv_vbox1, value_label="DCSV:")
-        self.pracsv_vbox1.addLayout(self.pracsv_vbox2)
-        self.pracsv_vbox1.addLayout(self.pracsv_vbox3)
-
-        # Add the container to the GroupBox
-        group_vbox.addWidget(self.pracsv_container)
-
-        # Hide the container initially
-        self.pracsv_container.setVisible(False)
-
-        # CONNECT the signal
-        self.pracsv_layout.toggled.connect(self.pracsv_container.setVisible)
+        pracsv_layout = self.create_pracsv_layout()
 
         ################ Construction Bonus (GSV) Layout ################
 
@@ -160,35 +108,101 @@ class MainWidget(QWidget):
         preview_layout.setLayout(preview_vbox)
         
         ######## Return all layouts ########
-        return self.market_layout, self.dcsv_layout, self.pracsv_layout, gsv_layout, ltsv_layout, preview_layout
+        return market_layout, dcsv_layout, pracsv_layout, gsv_layout, ltsv_layout, preview_layout
 
-    ############## WIDGETS ##############
+    ############## CREATE LAYOUTS ##############
+
+    def create_market_layout(self):
+        market_vbox = QVBoxLayout()
+
+        # Create and add widget
+        self.market_combobox = QComboBox()
+        for market in set(self.products_db["MARKET_LOCATION"]):
+            self.market_combobox.addItem(market)
+        market_vbox.addWidget(self.market_combobox)
+
+        # Set layout
+        market_layout = QGroupBox("Mercado")
+        market_layout.setLayout(market_vbox)
+
+        return market_layout
         
-    def product_widgets(self, vbox1):
+
+    def create_dcsv_layout(self):
+        # Structural elements
+        groupbox = QGroupBox("Ventas Directas")
+        groupbox.setCheckable(True)
+        groupbox.setChecked(False)
+
+        groupbox_layout = QVBoxLayout(groupbox)
+
+        container = QWidget()
+        dcsv_vbox1 = QVBoxLayout(container)
+        
+        # Save the groupbox to check if toggled later
+        self.dcsv_groupbox = groupbox
+
+        # Everything inside basic_section_widgets is important to keep
+        (self.dcsv_vbox2, self.dcsv_button, self.dcsv_value) = self.basic_section_widgets(
+            vbox1=dcsv_vbox1,
+            registry=self.dcsv_product_reg,
+            value_label="DCSV:"
+        )
+
+        # Add container to layout
+        groupbox_layout.addWidget(container)
+        
+        # Toggle logic
+        container.setVisible(False)
+        groupbox.toggled.connect(container.setVisible)
+        
+        return groupbox
+
+
+    def create_pracsv_layout(self):
+        # Structural elements
+        groupbox = QGroupBox("Ventas Directas")
+        groupbox.setCheckable(True)
+        groupbox.setChecked(False)
+
+        groupbox_layout = QVBoxLayout(groupbox)
+
+        container = QWidget()
+        pracsv_vbox1 = QVBoxLayout(container)
+        
+        # Save the groupbox to check if toggled later
+        self.pracsv_groupbox = groupbox
+
+        # Everything inside basic_section_widgets is important to keep
+        (self.pracsv_vbox2, self.pracsv_button, self.pracsv_value) = self.basic_section_widgets(
+            vbox1=pracsv_vbox1,
+            registry=self.pracsv_product_reg,
+            value_label="PRAC-SV:"
+        )
+
+        # Add container to layout
+        groupbox_layout.addWidget(container)
+        
+        # Toggle logic
+        container.setVisible(False)
+        groupbox.toggled.connect(container.setVisible)
+        
+        return groupbox
+
+    def create_gsv_layout(self):
+        pass
+
+    def create_ltsv_layout(self):
+        pass
+    
+    ############## HELPER FUNCTIONS ##############
+        
+    def basic_section_widgets(self, vbox1, registry, value_label:str="Value"):
         # Create vbox2
         vbox2 = QVBoxLayout()
 
         # Widgets
-        product_name = QComboBox()
-        quantity_value = QSpinBox()
-        
-        # Add widgets to hbox
-        hbox1 = QHBoxLayout()
-        hbox1.addWidget(QLabel("Producto:"))
-        hbox1.addWidget(product_name)
-        hbox1.addWidget(QLabel("Cantidad:"))
-        hbox1.addWidget(quantity_value)
-
-        # Add Layouts
-        vbox2.addLayout(hbox1)
-        vbox1.addLayout(vbox2)
-        
-        return vbox2, product_name, quantity_value
-
-
-    def basic_section_widgets(self, vbox1, value_label:str="Value"):
-        # Widgets
-        (vbox2, product_name, quantity_value) = self.product_widgets(vbox1)
+        self.add_product_row(vbox2, registry)
         button = QPushButton("Añadir Producto")
         value = QSpinBox()
 
@@ -206,7 +220,7 @@ class MainWidget(QWidget):
         vbox1.addLayout(vbox2)
         vbox1.addLayout(vbox3)
 
-        return vbox2, vbox3, button, value
+        return vbox2, button, value
 
 
     def GSV_widgets(self, vbox):
@@ -269,7 +283,26 @@ class MainWidget(QWidget):
         vbox.addLayout(hbox4)
 
 
-    ############## CALCULATION LOGIC ##############
+    ############## BUTTONS ##############
+
+    def add_product_row(self, vbox2, registry):
+        # Widgets
+        combo = QComboBox()
+        spin = QSpinBox()
+        
+        # Add the widgets
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(combo)
+        hbox1.addWidget(spin)
+        vbox2.addLayout(hbox1)
+        
+        # Save the important data 
+        row_data = {
+            "product_name": combo,
+            "product_quantity": spin,
+        }
+        registry.append(row_data)
+
     
     def calculate_total_payout(self):
         dcsv = float(self.preview_dcsv_value.text())
@@ -311,3 +344,6 @@ class MainWidget(QWidget):
 
         # Save all the data into a dictionary
         self.products_db = {"SKU": sku_number, "MARKET_LOCATION": market_location, "PRODUCT_NAME": product_name}
+
+    def refresh_products(self):
+        pass

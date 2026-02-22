@@ -40,3 +40,37 @@ This avoids constantly revisiting the db and trying to fetch inside the layout c
 - Build UI: Create the Market ComboBox and the Product ComboBoxes.
 - Initial Load: Call self.update_product_list(self.market_location.currentText()) once so the app doesn't start with an empty product list.
 - Connect Signal: self.market_location.currentTextChanged.connect(self.update_product_list).
+
+## Add Product Logic
+
+Quite the chicken and egg problem. A lazy solution would be that the add product button actually reveals a hidden section with another product section. Two problems with that approach:
+
+1. It would have a limit and be very difficult to add more if I wanted to.
+2. It would be VERY annoying, since it would require a TON of nesting.
+
+I had the idea to use a dictionary to somehow keep track of the newly added sections, but didn't know how to, the AI suggested:
+
+```python
+def add_product_row(self, target_layout, registry):
+    # 1. Create the widgets
+    combo = QComboBox()
+    spin = QSpinBox()
+
+    # 2. Put them in a layout and add to the UI
+    hbox = QHBoxLayout()
+    hbox.addWidget(combo)
+    hbox.addWidget(spin)
+    target_layout.addLayout(hbox)
+
+    # 3. FILE THEM in the registry
+    # We store the widgets in a small dict so we can find them easily
+    row_data = {
+        "combo": combo,
+        "spin": spin,
+        "layout": hbox
+    }
+    registry.append(row_data)
+
+    # (Optional) Populate the combo box with your market data here
+    combo.addItems(self.market_catalog.get(self.market_location.currentText(), []))
+```
