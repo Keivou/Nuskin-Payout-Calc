@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel, 
-QPushButton, QGroupBox, QTableView, QLineEdit, QComboBox, QSpinBox)
+from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QGroupBox, QTableView, QLineEdit, QComboBox, QSpinBox, QScrollArea, QFrame)
 from PySide6.QtCore import Qt, Slot, Signal
 
 import sqlite3
@@ -10,8 +9,18 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Overall vertical layout
-        window_layout = QVBoxLayout(self)
+        # Set Window Constraints
+        self.setWindowTitle("Payout Calculator")
+        self.resize(1000, 700) # Good default size for most laptops
+
+        # Create the Scroll Area
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True) # Crucial: lets internal widgets resize
+        scroll.setFrameShape(QFrame.NoFrame) # Makes it look seamless
+
+        # Create the "Content Widget" that actually holds your UI
+        content_widget = QWidget()
+        self.window_layout = QVBoxLayout(content_widget)
 
         # Registries
         self.dcsv_product_reg = []
@@ -21,27 +30,34 @@ class MainWidget(QWidget):
         (market_layout, dcsv_layout, prac_layout, gsv_layout, ltsv_layout, preview_layout) = self.create_layouts()
 
         # Stacking the sections
-        window_layout.addWidget(market_layout)
-        window_layout.addWidget(dcsv_layout)
-        window_layout.addWidget(prac_layout)
-        window_layout.addWidget(gsv_layout)
-        window_layout.addWidget(ltsv_layout)
-        window_layout.addWidget(preview_layout)
+        self.window_layout.addWidget(market_layout)
+        self.window_layout.addWidget(dcsv_layout)
+        self.window_layout.addWidget(prac_layout)
+        self.window_layout.addWidget(gsv_layout)
+        self.window_layout.addWidget(ltsv_layout)
+        self.window_layout.addWidget(preview_layout)
 
         # Create calc payout button and style
         self.calc_payout_button = QPushButton("Calc Payout")
         self.calc_payout_button.setStyleSheet("font-weight: bold; border: 2px solid #27ae60;")
         
         # Add calc button at the end of the layout
-        window_layout.addWidget(self.calc_payout_button)
-
-        # Setting the layout for the window
-        self.setLayout(window_layout)
+        self.window_layout.addWidget(self.calc_payout_button)
 
         # Button clicks
         self.calc_payout_button.clicked.connect(self.calculate_total_payout)
-        # self.dcsv_button.clicked.connect(self.product_widgets(self.dcsv_button))
-        # self.pracsv_button.clicked.connect(self.product_widgets(self.pracsv_button))
+        self.dcsv_button.clicked.connect(lambda: self.add_product_row(self.dcsv_vbox2, self.dcsv_product_reg))
+        self.pracsv_button.clicked.connect(lambda: self.add_product_row(self.pracsv_vbox2, self.pracsv_product_reg))
+
+        # Set the content widget into the scroll area
+        scroll.setWidget(content_widget)
+
+        # Set the scroll area as the ONLY layout for the MainWidget
+        layout = QVBoxLayout(self)
+        layout.addWidget(scroll)
+        layout.setContentsMargins(0,0,0,0)
+
+        self.window_layout.setSizeConstraint(QVBoxLayout.SetMinAndMaxSize)
 
     ############## WINDOW ELEMENTS ##############
 
@@ -70,11 +86,16 @@ class MainWidget(QWidget):
         dcsv_layout = self.create_dcsv_layout()
 
         # Update the comboboxes
-        
+        dcsv_combobox = self.dcsv_product_reg[0]["product_name"]
+        self.populate_combobox(dcsv_combobox)
 
         ################ Partner Direct Sales Layout ################
 
         pracsv_layout = self.create_pracsv_layout()
+
+        # Update the comboboxes
+        pracsv_combobox = self.pracsv_product_reg[0]["product_name"]
+        self.populate_combobox(pracsv_combobox)
 
         ################ Construction Bonus (GSV) Layout ################
 
@@ -300,6 +321,10 @@ class MainWidget(QWidget):
         vbox1.addLayout(hbox2)
         vbox1.addLayout(hbox3)
         vbox1.addLayout(hbox4)
+
+    def populate_combobox(self, combobox):
+        for product in self.products_db["PRODUCT_NAME"]:
+            combobox.addItem(product)
 
 
     ############## BUTTONS ##############
