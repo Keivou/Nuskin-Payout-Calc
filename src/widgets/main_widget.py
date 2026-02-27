@@ -163,7 +163,7 @@ class MainWidget(QWidget):
 
     def create_pracsv_layout(self):
         # Structural elements
-        groupbox = QGroupBox("Ventas Directas")
+        groupbox = QGroupBox("Ventas Directas de Socios")
         groupbox.setCheckable(True)
         groupbox.setChecked(False)
 
@@ -192,35 +192,50 @@ class MainWidget(QWidget):
         return groupbox
 
     def create_gsv_layout(self):
-        # Create vbox
-        gsv_vbox = QVBoxLayout()
+        # Structural elements
+        groupbox = QGroupBox("Volumen Grupal")
+        groupbox.setCheckable(True)
+        groupbox.setChecked(False)
 
-        # Add widgets
-        self.GSV_widgets(gsv_vbox)
+        groupbox_layout = QVBoxLayout(groupbox)
 
-        # Set layout
-        gsv_layout = QGroupBox("Bono Constructor")
-        gsv_layout.setLayout(gsv_vbox)
-        gsv_layout.setCheckable(True)
-        gsv_layout.setChecked(False)
+        container = QWidget()
+        gsv_vbox1 = QVBoxLayout(container)
+        
+        (self.basic_gsv_value, self.adm_gsv_value) = self.GSV_widgets(gsv_vbox1)
 
-        return gsv_layout
+        # Add container to layout
+        groupbox_layout.addWidget(container)
+        
+        # Toggle logic
+        container.setVisible(False)
+        groupbox.toggled.connect(container.setVisible)
+
+        return groupbox
 
 
     def create_ltsv_layout(self):
-        # Create vbox
-        ltsv_vbox = QVBoxLayout()
+        # Structural elements
+        groupbox = QGroupBox("Volumen Por Liderazgo")
+        groupbox.setCheckable(True)
+        groupbox.setChecked(False)
 
-        # Add widgets
-        self.LTSV_widgets(ltsv_vbox)
+        groupbox_layout = QVBoxLayout(groupbox)
 
-        # Set layout
-        ltsv_layout = QGroupBox("Bono Por Liderazgo")
-        ltsv_layout.setLayout(ltsv_vbox)
-        ltsv_layout.setCheckable(True)
-        ltsv_layout.setChecked(False)
+        container = QWidget()
+        ltsv_vbox1 = QVBoxLayout(container)
         
-        return ltsv_layout
+        self.ltsv_value = self.LTSV_widgets(ltsv_vbox1)
+
+        # Add container to layout
+        groupbox_layout.addWidget(container)
+        
+        # Toggle logic
+        container.setVisible(False)
+        groupbox.toggled.connect(container.setVisible)
+
+        return groupbox
+
 
     def create_preview_layout(self):
         # Create vbox
@@ -265,31 +280,35 @@ class MainWidget(QWidget):
 
     def GSV_widgets(self, vbox1):
         # Basic GSV
-        self.basic_gsv_value = QSpinBox()
+        basic_gsv_value = QSpinBox()
         hbox1 = QHBoxLayout()
         hbox1.addWidget(QLabel("Basic GSV (DC-SV):"))
-        hbox1.addWidget(self.basic_gsv_value)
+        hbox1.addWidget(basic_gsv_value)
 
         # AdM GSV
-        self.adm_gsv_value = QSpinBox()
+        adm_gsv_value = QSpinBox()
         hbox2 = QHBoxLayout()
         hbox2.addWidget(QLabel("AdM GSV:"))
-        hbox2.addWidget(self.adm_gsv_value)
+        hbox2.addWidget(adm_gsv_value)
 
         # Add Layouts
         vbox1.addLayout(hbox1)
         vbox1.addLayout(hbox2)
 
+        return basic_gsv_value, adm_gsv_value
+
 
     def LTSV_widgets(self, vbox1):
         # RdM LTSV
-        self.ltsv_value = QSpinBox()
+        ltsv_value = QSpinBox()
         hbox1 = QHBoxLayout()
         hbox1.addWidget(QLabel("LTSV:"))
-        hbox1.addWidget(self.ltsv_value)
+        hbox1.addWidget(ltsv_value)
 
         # Add Layouts
         vbox1.addLayout(hbox1)
+
+        return ltsv_value
 
     def preview_widgets(self, vbox1):
         # DC-SV
