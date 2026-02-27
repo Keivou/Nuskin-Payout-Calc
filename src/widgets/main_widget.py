@@ -9,6 +9,8 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
+        ############## WINDOW ##############
+
         # Set Window Constraints
         self.setWindowTitle("Payout Calculator")
         self.resize(1000, 700) # Good default size for most laptops
@@ -25,6 +27,7 @@ class MainWidget(QWidget):
         # Registries
         self.dcsv_product_reg = []
         self.pracsv_product_reg = []
+        self.spinboxes_reg = []
 
         # Sections to stack
         (market_layout, dcsv_layout, prac_layout, gsv_layout, ltsv_layout, preview_layout) = self.create_layouts()
@@ -37,6 +40,9 @@ class MainWidget(QWidget):
         self.window_layout.addWidget(ltsv_layout)
         self.window_layout.addWidget(preview_layout)
 
+        # Since all fixed spinboxes are set, update their settings
+        self.spinbox_settings(self.spinboxes_reg)
+
         # Create calc payout button and style
         self.calc_payout_button = QPushButton("Calc Payout")
         self.calc_payout_button.setStyleSheet("font-weight: bold; border: 2px solid #27ae60;")
@@ -45,7 +51,7 @@ class MainWidget(QWidget):
         self.window_layout.addWidget(self.calc_payout_button)
 
         # Button clicks
-        self.calc_payout_button.clicked.connect(self.calculate_total_payout)
+        self.calc_payout_button.clicked.connect(lambda: self.calculate_total_payout())
         self.dcsv_button.clicked.connect(lambda: self.add_product_row(self.dcsv_vbox2, self.dcsv_product_reg))
         self.pracsv_button.clicked.connect(lambda: self.add_product_row(self.pracsv_vbox2, self.pracsv_product_reg))
 
@@ -57,7 +63,10 @@ class MainWidget(QWidget):
         layout.addWidget(scroll)
         layout.setContentsMargins(0,0,0,0)
 
+        # This helps resize the window everytime the size changes (or something like that)
         self.window_layout.setSizeConstraint(QVBoxLayout.SetMinAndMaxSize)
+
+
 
     ############## WINDOW ELEMENTS ##############
 
@@ -74,7 +83,7 @@ class MainWidget(QWidget):
         ################ Fetch DB Data ################
 
         self.fetch_from_db()
-        print(self.products_db)
+        # print(self.products_db)
 
         ################ Market Layout ################
 
@@ -242,13 +251,13 @@ class MainWidget(QWidget):
         preview_vbox = QVBoxLayout()
 
         # Add widgets
-        self.preview_widgets(preview_vbox)
+        (self.preview_dcsv_value, self.preview_pracsv_value, self.preview_gsv_value, self.preview_ltsv_value) = self.preview_widgets(preview_vbox)
 
         # Set layout
-        preview_layout = QGroupBox("Preview")
-        preview_layout.setLayout(preview_vbox)
+        groupbox = QGroupBox("Preview")
+        groupbox.setLayout(preview_vbox)
         
-        return preview_layout
+        return groupbox
     
     ############## HELPER FUNCTIONS ##############
         
@@ -275,6 +284,9 @@ class MainWidget(QWidget):
         vbox1.addLayout(vbox2)
         vbox1.addLayout(vbox3)
 
+        # Add spinbox to registry
+        self.spinboxes_reg.append(value)
+
         return vbox2, button, value
 
 
@@ -295,6 +307,10 @@ class MainWidget(QWidget):
         vbox1.addLayout(hbox1)
         vbox1.addLayout(hbox2)
 
+        # Add spinboxes to registry
+        self.spinboxes_reg.append(basic_gsv_value)
+        self.spinboxes_reg.append(adm_gsv_value)
+
         return basic_gsv_value, adm_gsv_value
 
 
@@ -308,32 +324,35 @@ class MainWidget(QWidget):
         # Add Layouts
         vbox1.addLayout(hbox1)
 
+        # Add spinboxes to registry
+        self.spinboxes_reg.append(ltsv_value)
+
         return ltsv_value
 
     def preview_widgets(self, vbox1):
         # DC-SV
-        self.preview_dcsv_value = QSpinBox()
+        preview_dcsv_value = QSpinBox()
         hbox1 = QHBoxLayout()
         hbox1.addWidget(QLabel("DC-SV:"))
-        hbox1.addWidget(self.preview_dcsv_value)
+        hbox1.addWidget(preview_dcsv_value)
 
         # PRAC-SV
-        self.preview_pracsv_value = QSpinBox()
+        preview_pracsv_value = QSpinBox()
         hbox2 = QHBoxLayout()
         hbox2.addWidget(QLabel("PRAC-SV:"))
-        hbox2.addWidget(self.preview_pracsv_value)
+        hbox2.addWidget(preview_pracsv_value)
 
         # GSV
-        self.preview_gsv_value = QSpinBox()
+        preview_gsv_value = QSpinBox()
         hbox3 = QHBoxLayout()
         hbox3.addWidget(QLabel("GSV:"))
-        hbox3.addWidget(self.preview_gsv_value)
+        hbox3.addWidget(preview_gsv_value)
 
         # LTSV
-        self.preview_ltsv_value = QSpinBox()
+        preview_ltsv_value = QSpinBox()
         hbox4 = QHBoxLayout()
         hbox4.addWidget(QLabel("LTSV:"))
-        hbox4.addWidget(self.preview_ltsv_value)
+        hbox4.addWidget(preview_ltsv_value)
 
         # Add Layouts
         vbox1.addLayout(hbox1)
@@ -341,9 +360,29 @@ class MainWidget(QWidget):
         vbox1.addLayout(hbox3)
         vbox1.addLayout(hbox4)
 
+        # Add spinboxes to registry
+        self.spinboxes_reg.append(preview_dcsv_value)
+        self.spinboxes_reg.append(preview_pracsv_value)
+        self.spinboxes_reg.append(preview_gsv_value)
+        self.spinboxes_reg.append(preview_ltsv_value)
+
+        return preview_dcsv_value, preview_pracsv_value, preview_gsv_value, preview_ltsv_value
+
     def populate_combobox(self, combobox):
         for product in self.products_db["PRODUCT_NAME"]:
             combobox.addItem(product)
+
+    
+    def spinbox_settings(self, registry):
+        for spinbox in registry:
+            # 1. Set the limits (0 to 1,000,000)
+            spinbox.setRange(0, 1000000)
+
+            # 2. Set the "jump" amount (50 per click)
+            spinbox.setSingleStep(50)
+
+            # 3. Optional: Allow the user to type in numbers larger than the step
+            spinbox.setAccelerated(True) # Holding the arrow makes it go faster
 
 
     ############## BUTTONS ##############
